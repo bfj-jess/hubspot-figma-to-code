@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BFJ Media standard flow for building HubSpot websites from Figma designs using the automated Figma → HubSpot pipeline.">
+  <title>HubSpot Figma-to-Code Pipeline · BFJ Media</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Reset & base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: #1a1f2e;
+      background: #fafaf7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Colour tokens ─────────────────────────────────────────────────── */
+    :root {
+      --navy:        #0a1628;
+      --navy-soft:   #1b3a5f;
+      --accent:      #ff6b3d;
+      --accent-soft: #ffefe8;
+      --bg:          #fafaf7;
+      --bg-card:     #ffffff;
+      --text:        #1a1f2e;
+      --text-muted:  #64748b;
+      --text-soft:   #94a3b8;
+      --border:      #e5e7eb;
+      --border-soft: #f1f5f9;
+      --yellow-bg:   #fef9c3;
+      --yellow-bd:   #facc15;
+      --green-bg:    #dcfce7;
+      --green-bd:    #16a34a;
+      --red-bg:      #fee2e2;
+      --red-bd:      #ef4444;
+      --blue-bg:     #dbeafe;
+      --blue-bd:     #3b82f6;
+    }
+
+    /* ─── Layout ────────────────────────────────────────────────────────── */
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      max-width: 1440px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ───────────────────────────────────────────────────────── */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 40px 28px 40px 40px;
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      text-decoration: none;
+      color: var(--navy);
+    }
+    .sidebar-brand .logo-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .sidebar-brand .logo-text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .sidebar-brand .logo-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .sidebar nav { font-size: 14px; }
+    .sidebar nav h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-soft);
+      margin: 24px 0 8px;
+      font-weight: 700;
+    }
+    .sidebar nav a {
+      display: block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 1px;
+      transition: all 0.15s ease;
+      border-left: 2px solid transparent;
+    }
+    .sidebar nav a:hover {
+      color: var(--navy);
+      background: var(--border-soft);
+    }
+    .sidebar nav a.active {
+      color: var(--navy);
+      background: var(--accent-soft);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+    .sidebar nav .sub-nav a {
+      padding-left: 24px;
+      font-size: 13px;
+    }
+
+    /* ─── Main ──────────────────────────────────────────────────────────── */
+    main {
+      padding: 0;
+      background: var(--bg-card);
+      overflow-x: hidden;
+    }
+    .content {
+      max-width: 860px;
+      padding: 56px 56px 120px;
+      margin: 0 auto;
+    }
+
+    /* ─── Hero ──────────────────────────────────────────────────────────── */
+    .hero {
+      padding: 72px 56px 56px;
+      background: linear-gradient(180deg, #0a1628 0%, #1b3a5f 100%);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,107,61,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 860px; margin: 0 auto; position: relative; }
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+    .hero .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 42px;
+      line-height: 1.1;
+      font-weight: 800;
+      margin: 0 0 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero .tagline {
+      font-size: 20px;
+      color: rgba(255,255,255,0.75);
+      margin: 0 0 48px;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding-top: 36px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+    .hero-meta .meta-item span {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .hero-meta .meta-item strong {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    /* ─── Typography ────────────────────────────────────────────────────── */
+    h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 32px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 72px 0 20px;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 40px 0 12px;
+    }
+    h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 28px 0 10px;
+    }
+    p { margin: 0 0 16px; color: var(--text); }
+    a { color: var(--navy-soft); text-decoration: underline; text-decoration-color: rgba(27,58,95,0.3); text-underline-offset: 3px; }
+    a:hover { text-decoration-color: var(--accent); }
+    strong { font-weight: 600; color: var(--navy); }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      padding: 2px 6px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      color: #0f172a;
+      font-weight: 500;
+    }
+
+    /* ─── Flow diagram ──────────────────────────────────────────────────── */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 32px 0;
+      padding: 24px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .flow-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--navy);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .flow-item .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--text-soft);
+      font-size: 14px;
+    }
+
+    /* ─── Prerequisites table ───────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    thead { background: #f8fafc; }
+    th {
+      text-align: left;
+      padding: 14px 18px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fafafa; }
+
+    /* ─── Phase cards ───────────────────────────────────────────────────── */
+    .phase {
+      position: relative;
+      margin: 40px 0;
+      padding: 36px 36px 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 1px 3px rgba(10,22,40,0.04), 0 1px 2px rgba(10,22,40,0.03);
+      transition: box-shadow 0.2s ease;
+    }
+    .phase:hover { box-shadow: 0 4px 12px rgba(10,22,40,0.06), 0 2px 4px rgba(10,22,40,0.04); }
+    .phase-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    .phase-number {
+      flex-shrink: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+      width: 64px;
+    }
+    .phase-title {
+      flex: 1;
+      padding-top: 4px;
+    }
+    .phase-title h3 { margin: 0 0 4px; font-size: 24px; }
+    .phase-title .owner {
+      display: inline-block;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .phase-desc {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .phase-content ul, .phase-content ol {
+      padding-left: 24px;
+      margin: 12px 0;
+    }
+    .phase-content li { margin-bottom: 8px; }
+    .phase-content li strong { color: var(--navy); }
+
+    /* ─── Alert boxes ───────────────────────────────────────────────────── */
+    .alert {
+      display: flex;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      border-left: 3px solid;
+    }
+    .alert-icon {
+      flex-shrink: 0;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .alert-body { flex: 1; }
+    .alert-body strong { display: block; margin-bottom: 2px; }
+    .alert-warn {
+      background: var(--yellow-bg);
+      border-color: var(--yellow-bd);
+      color: #713f12;
+    }
+    .alert-warn strong { color: #854d0e; }
+    .alert-info {
+      background: var(--blue-bg);
+      border-color: var(--blue-bd);
+      color: #1e3a8a;
+    }
+    .alert-info strong { color: #1e40af; }
+    .alert-success {
+      background: var(--green-bg);
+      border-color: var(--green-bd);
+      color: #14532d;
+    }
+    .alert-success strong { color: #166534; }
+    .alert-danger {
+      background: var(--red-bg);
+      border-color: var(--red-bd);
+      color: #7f1d1d;
+    }
+    .alert-danger strong { color: #991b1b; }
+
+    /* ─── Reference pill ────────────────────────────────────────────────── */
+    .ref-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 8px 14px;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--navy-soft);
+      font-weight: 500;
+    }
+    .ref-pill::before { content: '📖'; font-size: 14px; }
+
+    /* ─── Code block ────────────────────────────────────────────────────── */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px 22px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 16px 0;
+      border: 1px solid #1e293b;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-weight: 400;
+    }
+
+    /* ─── Notes grid ────────────────────────────────────────────────────── */
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .note-card {
+      padding: 20px 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .note-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .note-card .note-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      background: var(--navy);
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .note-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: var(--navy);
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────────────── */
+    footer {
+      margin-top: 96px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    footer .version {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: var(--border-soft);
+      border-radius: 100px;
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    /* ─── QA Skill callout ──────────────────────────────────────────────── */
+    .skill-callout {
+      margin: 20px 0;
+      padding: 22px 24px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      border-radius: 12px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-callout::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    }
+    .skill-callout .skill-label {
+      display: inline-block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .skill-callout .skill-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .skill-callout p {
+      color: rgba(255,255,255,0.85);
+      font-size: 14px;
+      margin: 0 0 12px;
+      position: relative;
+    }
+    .skill-callout ul {
+      color: rgba(255,255,255,0.85);
+      font-size: 14px;
+      padding-left: 20px;
+      margin: 0;
+      position: relative;
+    }
+    .skill-callout li { margin-bottom: 6px; }
+
+    /* ─── Mobile ────────────────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 24px;
+      }
+      .hero { padding: 48px 28px 40px; }
+      .hero h1 { font-size: 36px; }
+      .hero .tagline { font-size: 17px; }
+      .hero-meta { grid-template-columns: 1fr; gap: 16px; }
+      .content { padding: 40px 28px 80px; }
+      h2 { font-size: 26px; margin-top: 56px; }
+      .phase { padding: 24px 22px; }
+      .phase-header { flex-direction: column; gap: 12px; }
+      .phase-number { font-size: 36px; width: auto; }
+      .notes-grid { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+      th, td { padding: 10px 14px; }
+    }
+
+    /* ─── Print styles ──────────────────────────────────────────────────── */
+    @media print {
+      .sidebar { display: none; }
+      .layout { grid-template-columns: 1fr; }
+      .hero { background: none; color: var(--navy); page-break-after: avoid; }
+      .hero::before { display: none; }
+      .hero-meta .meta-item span { color: var(--text-muted); }
+      .hero-meta .meta-item strong { color: var(--navy); }
+      .phase { box-shadow: none; page-break-inside: avoid; break-inside: avoid; }
+      .phase:hover { box-shadow: none; }
+      pre { background: #f8fafc; color: #0f172a; border: 1px solid var(--border); }
+      .skill-callout { background: #f1f5f9; color: var(--navy); }
+      .skill-callout p, .skill-callout ul { color: var(--text); }
+      .skill-callout .skill-label { color: var(--text-muted); }
+      body { font-size: 11pt; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ─── SIDEBAR ──────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <a href="#top" class="sidebar-brand">
+      <div class="logo-mark">BFJ</div>
+      <div>
+        <div class="logo-text">Pipeline Docs</div>
+        <div class="logo-sub">v1.0 · Internal</div>
+      </div>
+    </a>
+
+    <nav id="sidebar-nav">
+      <h4>Introduction</h4>
+      <a href="#overview">Overview</a>
+      <a href="#prerequisites">Before You Start</a>
+
+      <h4>The Flow</h4>
+      <a href="#phase-1">1 · Prepare Figma</a>
+      <a href="#phase-2">2 · Bootstrap HubSpot</a>
+      <a href="#phase-3">3 · Image Pipeline</a>
+      <a href="#phase-4">4 · Generate Modules</a>
+      <a href="#phase-5">5 · Sync Assets</a>
+      <a href="#phase-6">6 · Create Draft Page</a>
+      <a href="#phase-7">7 · QA &amp; Publish</a>
+
+      <h4>Appendix</h4>
+      <a href="#notes">Important Notes</a>
+      <a href="#references">Reference Docs</a>
+    </nav>
+  </aside>
+
+  <!-- ─── MAIN ─────────────────────────────────────────────────────────── -->
+  <main id="top">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="badge">BFJ Media · PROJECT LOBSTER FOR hUBSPOT</div>
+        <h1>HubSpot Figma-to-Code Pipeline</h1>
+        <p class="tagline">Standard flow for building HubSpot websites from Figma designs — from file prep to published page, with minimal manual work.</p>
+        <div class="hero-meta">
+          <div class="meta-item">
+            <span>Audience</span>
+            <strong>Any HubSpot developer at BFJ</strong>
+          </div>
+          <div class="meta-item">
+            <span>Goal</span>
+            <strong>Build a theme from Figma, automated</strong>
+          </div>
+          <div class="meta-item">
+            <span>Time split</span>
+            <strong>~80% automated / ~20% polish</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="content">
+
+      <!-- OVERVIEW -->
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>This document is the standard flow for building a new HubSpot CMS website from a Figma design using the BFJ automated pipeline. It defines the seven phases every project goes through, what happens in each, who owns it, and the rules that keep the process consistent across projects.</p>
+        <p>Follow the phases in order. Don't skip. The automation is deterministic only if every step is done correctly.</p>
+
+        <div class="flow">
+          <div class="flow-item"><span class="num">1</span> Figma Prep</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item"><span class="num">2</span> Bootstrap</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item"><span class="num">3</span> Image Pipeline</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item"><span class="num">4</span> Generate Modules</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item"><span class="num">5</span> Sync Assets</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item"><span class="num">6</span> Draft Page</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item"><span class="num">7</span> QA &amp; Publish</div>
+        </div>
+      </section>
+
+      <!-- PREREQUISITES -->
+      <section id="prerequisites">
+        <h2>Before You Start</h2>
+        <p>These are the tools and access you'll need for every new project. Set them up once and you're ready to go.</p>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40%">Tool / Access</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Figma file</strong> (with edit access)</td>
+              <td>Source of truth for the design</td>
+            </tr>
+            <tr>
+              <td><strong>Figma Personal Access Token</strong></td>
+              <td><code>file_content:read</code> scope — for the Figma REST API</td>
+            </tr>
+            <tr>
+              <td><strong>HubSpot portal + <code>hs</code> CLI</strong></td>
+              <td>Where the theme lives and is synced</td>
+            </tr>
+            <tr>
+              <td><strong>HubSpot Private App Token</strong></td>
+              <td>With <code>content</code> and <code>files</code> scopes</td>
+            </tr>
+            <tr>
+              <td><strong>Node.js 18+</strong></td>
+              <td>For the image sync script (built-in <code>fetch</code>)</td>
+            </tr>
+            <tr>
+              <td><strong>Claude Code CLI</strong></td>
+              <td>Runs the automation, generates modules, creates pages</td>
+            </tr>
+            <tr>
+              <td><strong><code>BFJ/docs/</code> folder access</strong></td>
+              <td>Canonical reference documents and the image sync script</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- THE PHASES -->
+      <section id="the-phases">
+        <h2>The Pipeline — 7 Phases</h2>
+
+        <!-- PHASE 1 -->
+        <article class="phase" id="phase-1">
+          <div class="phase-header">
+            <div class="phase-number">01</div>
+            <div class="phase-title">
+              <h3>Prepare the Figma File</h3>
+              <div class="owner">Owner: Designer &amp; Project Lead</div>
+            </div>
+          </div>
+          <div class="phase-desc">Set up the design file so the automation can read it deterministically. This is the most important phase — garbage in, garbage out.</div>
+          <div class="phase-content">
+            <ul>
+              <li>Build a dedicated <strong>Style Guide page</strong> — define colour tokens, spacing scale, typography, radius, and shadows as <strong>Figma local variables</strong></li>
+              <li>Name every top-level section frame using <strong>kebab-case module names</strong> (e.g. <code>hero-banner</code>, <code>service-cards</code>, <code>image-text-list</code>)</li>
+              <li>Annotate layers with type hints in square brackets: <code>[text]</code>, <code>[richtext]</code>, <code>[image]</code>, <code>[link]</code>, <code>[boolean]</code>, <code>[number]</code>, <code>[choice]</code></li>
+              <li>Mark repeater groups with an asterisk: <code>cards* [group]</code></li>
+              <li>Use Figma auto-layout consistently — it maps directly to CSS flexbox</li>
+              <li>Group reusable elements (buttons, cards, badges) as Figma components</li>
+              <li>Each website page lives on its own Figma page, with sections stacked vertically in a single parent frame</li>
+            </ul>
+            <div class="alert alert-danger">
+              <div class="alert-icon">!</div>
+              <div class="alert-body">
+                <strong>Non-negotiable</strong>
+                If the Figma file doesn't follow the naming convention, push it back to the designer before building. Don't try to fix a broken file from the dev side.
+              </div>
+            </div>
+            <div class="ref-pill">Reference: <code>figma-naming-convention-spec.md</code></div>
+          </div>
+        </article>
+
+        <!-- PHASE 2 -->
+        <article class="phase" id="phase-2">
+          <div class="phase-header">
+            <div class="phase-number">02</div>
+            <div class="phase-title">
+              <h3>Bootstrap the HubSpot Project</h3>
+              <div class="owner">Owner: Developer</div>
+            </div>
+          </div>
+          <div class="phase-desc">Spin up the empty theme in HubSpot Design Manager and start the file sync that stays running for the rest of the project.</div>
+          <div class="phase-content">
+            <ol>
+              <li>Clone the HubSpot CMS boilerplate:
+                <pre><code>git clone https://github.com/HubSpot/cms-theme-boilerplate.git ProjectName
+cd ProjectName
+git init &amp;&amp; git remote set-url origin &lt;client-repo-url&gt;</code></pre>
+              </li>
+              <li>Authenticate the HubSpot CLI against the client's portal:
+                <pre><code>hs account auth --account=&lt;portal-id&gt;</code></pre>
+              </li>
+              <li><strong>Start <code>hs cms watch</code> in a separate terminal window and keep it running for the entire project:</strong>
+                <pre><code>hs cms watch src ProjectName --account=&lt;portal-id&gt;</code></pre>
+                Run this alongside Claude Code — split your terminal so you can see both. Every file change Claude makes syncs to HubSpot automatically. You'll never run <code>hs cms upload</code> manually.
+              </li>
+              <li>Verify the <code>ProjectName/</code> folder is live in HubSpot → Marketing → Files and Templates → Design Tools</li>
+              <li>Confirm the HubSpot Private App token has <strong><code>content</code></strong> and <strong><code>files</code></strong> scopes</li>
+            </ol>
+            <div class="alert alert-warn">
+              <div class="alert-icon">⚠</div>
+              <div class="alert-body">
+                <strong>Never run <code>hs cms upload</code></strong>
+                It's unnecessary when watch is running and can cause sync conflicts. Watch handles everything from this point forward.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- PHASE 3 -->
+        <article class="phase" id="phase-3">
+          <div class="phase-header">
+            <div class="phase-number">03</div>
+            <div class="phase-title">
+              <h3>Set Up the Image Asset Pipeline</h3>
+              <div class="owner">Owner: Developer</div>
+            </div>
+          </div>
+          <div class="phase-desc">Wire up the standardized image sync script so image field defaults populate automatically from Figma — no manual uploads, ever.</div>
+          <div class="phase-content">
+            <ol>
+              <li>Copy <code>figma-sync-images.js</code> from <code>BFJ/docs/scripts/</code> into the project's <code>scripts/</code> folder</li>
+              <li>Create <code>figma-sync.config.json</code> at the project root with <code>figmaFileKey</code> and <code>defaultFolder</code></li>
+              <li>Commit an empty <code>.figma-hubspot-manifest.json</code> (or let the script create it on first run)</li>
+              <li>Set environment variables:
+                <pre><code>export FIGMA_TOKEN="figd_..."
+export HUBSPOT_TOKEN="pat-ap1-..."</code></pre>
+              </li>
+              <li>Smoke test: <code>node scripts/figma-sync-images.js help</code></li>
+              <li>Commit all three files to Git — <strong>yes, including the manifest</strong></li>
+            </ol>
+            <div class="alert alert-warn">
+              <div class="alert-icon">⚠</div>
+              <div class="alert-body">
+                <strong>Windows Git Bash gotcha</strong>
+                Prefix every script invocation with <code>MSYS_NO_PATHCONV=1</code> or the <code>--folder=/...</code> flag gets mangled into a Windows path. Native PowerShell and macOS/Linux shells are unaffected.
+              </div>
+            </div>
+            <div class="ref-pill">Reference: <code>figma-to-hubspot-automation.md</code> → Image Asset Pipeline</div>
+          </div>
+        </article>
+
+        <!-- PHASE 4 -->
+        <article class="phase" id="phase-4">
+          <div class="phase-header">
+            <div class="phase-number">04</div>
+            <div class="phase-title">
+              <h3>Generate Modules from Figma</h3>
+              <div class="owner">Owner: Developer + Claude</div>
+            </div>
+          </div>
+          <div class="phase-desc">Claude reads the Figma file and generates each top-level section as a HubSpot module. Because <code>hs cms watch</code> is running, every file Claude writes syncs to HubSpot instantly.</div>
+          <div class="phase-content">
+
+            <div class="alert alert-danger">
+              <div class="alert-icon">!</div>
+              <div class="alert-body">
+                <strong>Always consult the HubSpot Fields Reference first</strong>
+                Before generating any module, Claude <strong>must</strong> read <code>hubspot-fields-reference.md</code> and familiarise itself with the valid field types, their exact property names, and default value shapes. HubSpot is strict — field types like <code>video</code>, <code>videoplayer</code>, <code>form</code>, <code>file</code>, <code>embed</code>, <code>menu</code>, <code>simplemenu</code>, <code>link</code>, <code>cta</code>, <code>backgroundimage</code>, <code>icon</code> and others each have their own required default structure, and misspelling a type or property key will cause silent upload failures or broken editor UI. Never guess field types — look them up every time.
+              </div>
+            </div>
+
+            <p>For every top-level Figma frame, four files are produced:</p>
+            <ul>
+              <li><code>fields.json</code> — editable fields with defaults pulled from the Figma content</li>
+              <li><code>module.html</code> — HubL template rendering the section</li>
+              <li><code>module.css</code> — scoped styles</li>
+              <li><code>meta.json</code> — with <code>content_types</code> array so the module is available on pages</li>
+            </ul>
+
+            <h4>Local Module Standard — Two-Tab Structure</h4>
+            <p>Every Local Module must follow this structure. Global modules (header, footer, nav) are exempt — they have their own field shapes.</p>
+
+            <p><strong>Content Tab:</strong></p>
+            <ul>
+              <li><strong>Layout dropdown</strong> as the first field — only if the design has layout variations</li>
+              <li>Section-specific fields extracted from the Figma frame</li>
+              <li><strong><code>section_id</code> text field</strong> as the last field — drives anchor / jump links</li>
+            </ul>
+
+            <p><strong>Style Tab</strong> (mandatory, identical on every Local Module):</p>
+            <ul>
+              <li><code>heading_tag</code> — H1 / H2 / H3 / H4</li>
+              <li><code>background_type</code> — Color / Image</li>
+              <li><code>background_color</code> — dynamic choices from Style Guide colour tokens</li>
+              <li><code>background_image</code> — visible only when type = Image</li>
+              <li><code>padding_top</code> / <code>padding_bottom</code> — dynamic choices from Style Guide spacing scale</li>
+            </ul>
+
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;">
+              <div class="ref-pill" style="margin-top:0;"><code>hubspot-fields-reference.md</code> — all field types &amp; properties</div>
+              <div class="ref-pill" style="margin-top:0;"><code>figma-to-hubspot-automation.md</code> → Module Field Standards</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- PHASE 5 -->
+        <article class="phase" id="phase-5">
+          <div class="phase-header">
+            <div class="phase-number">05</div>
+            <div class="phase-title">
+              <h3>Sync Images &amp; Assets</h3>
+              <div class="owner">Owner: Developer + Claude</div>
+            </div>
+          </div>
+          <div class="phase-desc">Pull every image from Figma into HubSpot File Manager and patch the permanent URLs into module defaults — fully automated.</div>
+          <div class="phase-content">
+            <ol>
+              <li>Claude builds a sync plan listing every image node and its target module folder</li>
+              <li>Run the batch sync:
+                <pre><code>node scripts/figma-sync-images.js batch sync-plan.json</code></pre>
+              </li>
+              <li>The script exports from Figma → uploads to HubSpot File Manager → returns permanent CDN URLs → writes to the manifest</li>
+              <li>Permanent HubSpot URLs are patched into each module's <code>fields.json</code> as <code>src</code> defaults</li>
+            </ol>
+
+            <h4>3-Tier Asset Strategy</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tier</th>
+                  <th>Destination</th>
+                  <th>Used for</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Tier 1</strong></td>
+                  <td><code>src/images/</code> in the theme</td>
+                  <td>Logos, reusable brand icons — 10–20 foundational assets</td>
+                </tr>
+                <tr>
+                  <td><strong>Tier 2</strong></td>
+                  <td>HubSpot File Manager (via script)</td>
+                  <td>Hero images, card photos, design-specific imagery</td>
+                </tr>
+                <tr>
+                  <td><strong>Tier 3</strong></td>
+                  <td>Inline SVG in <code>module.html</code></td>
+                  <td>Small icons: chevrons, social glyphs, play buttons</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="alert alert-success">
+              <div class="alert-icon">✓</div>
+              <div class="alert-body">
+                <strong>Idempotent by design</strong>
+                The manifest means re-runs are safe. Running the pipeline twice on the same frame won't duplicate assets or break state.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- PHASE 6 -->
+        <article class="phase" id="phase-6">
+          <div class="phase-header">
+            <div class="phase-number">06</div>
+            <div class="phase-title">
+              <h3>Create the Draft Page</h3>
+              <div class="owner">Owner: Developer + Claude</div>
+            </div>
+          </div>
+          <div class="phase-desc">With modules live in HubSpot (synced via the running watch), Claude creates the actual page programmatically.</div>
+          <div class="phase-content">
+            <ol>
+              <li>Claude calls the HubSpot Pages API (<code>POST /cms/v3/pages/site-pages</code>)</li>
+              <li>Each module is placed in <code>layoutSections.dnd_area.rows</code> with default field values</li>
+              <li>The page is created as a <strong>draft</strong> — never auto-published</li>
+              <li>Claude returns the draft preview URL</li>
+            </ol>
+            <div class="alert alert-info">
+              <div class="alert-icon">i</div>
+              <div class="alert-body">
+                <strong>Everything is draft</strong>
+                Pages are always created as drafts. Never let the automation auto-publish. Human review is the safety gate.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- PHASE 7 -->
+        <article class="phase" id="phase-7">
+          <div class="phase-header">
+            <div class="phase-number">07</div>
+            <div class="phase-title">
+              <h3>QA, Review &amp; Publish</h3>
+              <div class="owner">Owner: Developer + Project Lead</div>
+            </div>
+          </div>
+          <div class="phase-desc">The ~20% manual step — make sure the draft matches the Figma design exactly before the client sees it. This phase starts with an automated QA pass, then manual review.</div>
+          <div class="phase-content">
+
+            <h4>Step 1 — Automated QA Parity Check</h4>
+            <p>Run the dedicated QA skill on every draft page. It catches the obvious deviations so human review can focus on judgment calls.</p>
+
+            <div class="skill-callout">
+              <div class="skill-label">BFJ Claude Code Skill</div>
+              <div class="skill-name">/qa-figma-parity</div>
+              <p>Takes the Figma frame URL and the HubSpot draft page URL, then:</p>
+              <ul>
+                <li>Screenshots the Figma frame at desktop / tablet / mobile breakpoints</li>
+                <li>Screenshots the HubSpot draft page at the same breakpoints</li>
+                <li>Runs a visual diff comparison between the two</li>
+                <li>Flags spacing, colour, typography, image, and layout deviations</li>
+                <li>Returns a severity-ranked QA report (critical / moderate / minor)</li>
+              </ul>
+            </div>
+
+            <h4>Step 2 — Manual Review</h4>
+            <ul>
+              <li>Review the QA report and fix any <strong>critical</strong> deviations</li>
+              <li>Check responsive breakpoints manually — edge cases the diff might miss</li>
+              <li>Verify content defaults look right in the HubSpot page editor</li>
+              <li>Review copy, alt text, SEO meta tags, accessibility (keyboard nav, contrast)</li>
+              <li>Test interactive elements: dropdowns, forms, toggles, play buttons</li>
+            </ul>
+
+            <h4>Step 3 — Client Approval</h4>
+            <ul>
+              <li>Share the draft URL with the client</li>
+              <li>Collect feedback and apply revisions</li>
+              <li>Re-run the QA skill after any significant change</li>
+            </ul>
+
+            <h4>Step 4 — Publish</h4>
+            <ul>
+              <li>Move pages from draft to published in HubSpot</li>
+              <li>Monitor the first 24 hours for any issues</li>
+              <li>Short training session with the client on editing modules</li>
+            </ul>
+
+            <div class="alert alert-info">
+              <div class="alert-icon">i</div>
+              <div class="alert-body">
+                <strong>The QA skill is your first checkpoint, not your only one</strong>
+                Automated diff catches most visual issues but can't judge content intent, typography balance, or brand feel. Always follow it with human review.
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- NOTES -->
+      <section id="notes">
+        <h2>Important Notes</h2>
+        <p>Rules and gotchas to keep in mind throughout the project. Most of these come from real incidents on previous builds.</p>
+
+        <div class="notes-grid">
+          <div class="note-card">
+            <div class="note-num">01</div>
+            <strong>Naming convention is non-negotiable</strong>
+            The automation is deterministic only if the Figma file follows the convention. If there's no naming convention, Claude will just provide all based on the default assumptions.
+          </div>
+          <div class="note-card">
+            <div class="note-num">02</div>
+            <strong>Commit the manifest</strong>
+            <code>.figma-hubspot-manifest.json</code> is authoritative state. Without it, re-runs upload duplicates.
+          </div>
+          <div class="note-card">
+            <div class="note-num">03</div>
+            <strong>Never skip Phase 1</strong>
+            Spend real time on the Figma prep. Everything downstream depends on it being right.
+          </div>
+          <div class="note-card">
+            <div class="note-num">04</div>
+            <strong>Tokens need <code>files</code> scope</strong>
+            If the sync script errors 401/403, the token is missing the Files scope. Add it and the change applies instantly — no rotation needed.
+          </div>
+          <div class="note-card">
+            <div class="note-num">05</div>
+            <strong>Everything is draft</strong>
+            Pages are always created as drafts. Never auto-publish from the automation.
+          </div>
+          <div class="note-card">
+            <div class="note-num">06</div>
+            <strong>Re-running is safe</strong>
+            The manifest guarantees idempotency. Running the pipeline twice on the same frame is a no-op for already-synced assets.
+          </div>
+          <div class="note-card">
+            <div class="note-num">07</div>
+            <strong>One frame = one module</strong>
+            Strict rule. One top-level Figma frame maps to exactly one HubSpot module. Don't combine.
+          </div>
+          <div class="note-card">
+            <div class="note-num">08</div>
+            <strong>Reserved field names</strong>
+            Never use <code>body</code>, <code>label</code>, <code>name</code>, <code>title</code>, <code>type</code>, <code>id</code>, <code>required</code>. Prefix instead: <code>card_body</code>, <code>nav_label</code>.
+          </div>
+          <div class="note-card">
+            <div class="note-num">09</div>
+            <strong>Always read the fields reference</strong>
+            Before creating modules, Claude must consult <code>hubspot-fields-reference.md</code> to verify field types and default shapes. Don't guess — <code>video</code> vs <code>videoplayer</code>, <code>link</code> vs <code>url</code>, and <code>image</code> vs <code>backgroundimage</code> all have different structures.
+          </div>
+          <div class="note-card">
+            <div class="note-num">10</div>
+            <strong>Local vs Global modules</strong>
+            Header, footer and nav partials are Global — exempt from the Style Tab standard. Everything else is Local and must follow it.
+          </div>
+          <div class="note-card">
+            <div class="note-num">11</div>
+            <strong>Never run <code>hs cms upload</code></strong>
+            Watch handles all sync. Manual upload can cause conflicts. Keep watch running in a separate terminal.
+          </div>
+          <div class="note-card">
+            <div class="note-num">12</div>
+            <strong>Accuracy improves with repetition</strong>
+            The first page of a new project needs more manual cleanup than the second and third. Claude learns each project's patterns as it goes.
+          </div>
+          <div class="note-card">
+            <div class="note-num">13</div>
+            <strong>Human review is not optional</strong>
+            No matter how well the automation runs, every module and page gets a developer review before the client sees it. QA skill first, then eyes.
+          </div>
+        </div>
+      </section>
+
+      <!-- REFERENCES -->
+      <section id="references">
+        <h2>Reference Documents</h2>
+        <p>Detailed specs live in <code>D:\Jessiemar Works\BFJ\docs\</code>. Every dev should bookmark these.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>figma-to-hubspot-automation.md</code></td>
+              <td>The full pipeline spec — deep technical reference this document summarises</td>
+            </tr>
+            <tr>
+              <td><code>figma-naming-convention-spec.md</code></td>
+              <td>Figma layer naming rules. Required reading for designers.</td>
+            </tr>
+            <tr>
+              <td><code>hubspot-fields-reference.md</code></td>
+              <td>All HubSpot field types with syntax and examples</td>
+            </tr>
+            <tr>
+              <td><code>scripts/figma-sync-images.js</code></td>
+              <td>Canonical image sync script. Copy into each new project.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:20px;">Questions or gotchas you can't resolve? Ask in the BFJ dev channel before improvising. Keep the pipeline consistent — that's how it gets faster with every project.</p>
+      </section>
+
+      <footer>
+        <div>BFJ Media · HubSpot Figma-to-Code Pipeline</div>
+        <div class="version">v1.0 · April 2026</div>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // Scroll-spy: highlight the active sidebar link as the user scrolls
+  (function () {
+    const links = document.querySelectorAll('.sidebar nav a[href^="#"]');
+    const sections = Array.from(links)
+      .map(a => document.getElementById(a.getAttribute('href').slice(1)))
+      .filter(Boolean);
+    const byId = {};
+    links.forEach(a => { byId[a.getAttribute('href').slice(1)] = a; });
+
+    function onScroll() {
+      const y = window.scrollY + 120;
+      let current = sections[0];
+      for (const s of sections) {
+        if (s.offsetTop <= y) current = s;
+      }
+      links.forEach(a => a.classList.remove('active'));
+      if (current && byId[current.id]) byId[current.id].classList.add('active');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+</script>
+
+</body>
+</html>
