@@ -744,8 +744,8 @@
               <td>Runs the automation, generates modules, creates pages</td>
             </tr>
             <tr>
-              <td><strong><code>BFJ/docs/</code> folder access</strong></td>
-              <td>Canonical reference documents and the image sync script</td>
+              <td><strong><a href="https://github.com/bfj-jess/hubspot-figma-to-code" target="_blank">GitHub repo access</a></strong></td>
+              <td>Canonical reference documents and the image sync script — clone or reference via raw URLs</td>
             </tr>
           </tbody>
         </table>
@@ -835,7 +835,7 @@ git init &amp;&amp; git remote set-url origin &lt;client-repo-url&gt;</code></pr
           <div class="phase-desc">Wire up the standardized image sync script so image field defaults populate automatically from Figma — no manual uploads, ever.</div>
           <div class="phase-content">
             <ol>
-              <li>Copy <code>figma-sync-images.js</code> from <code>BFJ/docs/scripts/</code> into the project's <code>scripts/</code> folder</li>
+              <li>Copy <a href="https://github.com/bfj-jess/hubspot-figma-to-code/blob/main/scripts/figma-sync-images.js" target="_blank"><code>figma-sync-images.js</code></a> from the <a href="https://github.com/bfj-jess/hubspot-figma-to-code" target="_blank">BFJ pipeline repo</a> into the project's <code>scripts/</code> folder</li>
               <li>Create <code>figma-sync.config.json</code> at the project root with <code>figmaFileKey</code> and <code>defaultFolder</code></li>
               <li>Commit an empty <code>.figma-hubspot-manifest.json</code> (or let the script create it on first run)</li>
               <li>Set environment variables:
@@ -1134,7 +1134,7 @@ export HUBSPOT_TOKEN="pat-ap1-..."</code></pre>
       <!-- REFERENCES -->
       <section id="references">
         <h2>Reference Documents</h2>
-        <p>Detailed specs live in <code>D:\Jessiemar Works\BFJ\docs\</code>. Every dev should bookmark these.</p>
+        <p>All detailed specs and tooling live in the BFJ pipeline repo: <a href="https://github.com/bfj-jess/hubspot-figma-to-code" target="_blank"><strong>github.com/bfj-jess/hubspot-figma-to-code</strong></a>. Bookmark it — every dev on the team should have easy access.</p>
         <table>
           <thead>
             <tr>
@@ -1144,19 +1144,19 @@ export HUBSPOT_TOKEN="pat-ap1-..."</code></pre>
           </thead>
           <tbody>
             <tr>
-              <td><code>figma-to-hubspot-automation.md</code></td>
+              <td><a href="https://github.com/bfj-jess/hubspot-figma-to-code/blob/main/figma-to-hubspot-automation.md" target="_blank"><code>figma-to-hubspot-automation.md</code></a></td>
               <td>The full pipeline spec — deep technical reference this document summarises</td>
             </tr>
             <tr>
-              <td><code>figma-naming-convention-spec.md</code></td>
+              <td><a href="https://github.com/bfj-jess/hubspot-figma-to-code/blob/main/figma-naming-convention-spec.md" target="_blank"><code>figma-naming-convention-spec.md</code></a></td>
               <td>Figma layer naming rules. Required reading for designers.</td>
             </tr>
             <tr>
-              <td><code>hubspot-fields-reference.md</code></td>
+              <td><a href="https://github.com/bfj-jess/hubspot-figma-to-code/blob/main/hubspot-fields-reference.md" target="_blank"><code>hubspot-fields-reference.md</code></a></td>
               <td>All HubSpot field types with syntax and examples</td>
             </tr>
             <tr>
-              <td><code>scripts/figma-sync-images.js</code></td>
+              <td><a href="https://github.com/bfj-jess/hubspot-figma-to-code/blob/main/scripts/figma-sync-images.js" target="_blank"><code>scripts/figma-sync-images.js</code></a></td>
               <td>Canonical image sync script. Copy into each new project.</td>
             </tr>
           </tbody>
